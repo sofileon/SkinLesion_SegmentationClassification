@@ -7,8 +7,8 @@ from pathlib import Path
 def load_images(path, format_img, flag):
     """
         To load multiple files
-        :param path: script with the folder that containes to files to be loaded
-        :param format_img: script with the extension of the files
+        :param path: string with the folder that containes to files to be loaded
+        :param format_img: string with the extension of the files
         :param flag: 0: to load in grayscale useful for the masks to have them directly in 1 channel, 1: BGR images
         -------------
         :return: images: list containing all the files
@@ -66,10 +66,10 @@ def get_fov(img):
 
 def csv_writer(filename, action, row):
     """
-         :param filename: name of the csv to be written on
-         :param action: either 'w' to write a new csv file or 'a' to append a new row
-         :param row: data to be appended to new row
-         ---------------
+        :param filename: name of the csv to be written on
+        :param action: either 'w' to write a new csv file or 'a' to append a new row
+        :param row: data to be appended to new row
+        ---------------
     """
     with open(filename, action, encoding='UTF8', newline='') as f:  # 'a' to append row
         writer = csv.writer(f)
