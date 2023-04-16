@@ -210,7 +210,7 @@ if __name__ == '__main__':
         # Append mean metrics to the .csv file
         csv_writer(name_metrics_csv, "a", mean_metrics)
 
-    # Apply kmeans functions on already saved images with no hair
+    # Apply kmeans and watershed functions on already saved images with no hair and save the result
     elif flag_1_vs_all == 2:
         # Run for all images_nohair
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
         names.sort()
 
         # Initialize .csv writer with the header
-        header_metric = ['Image', 'Dice Kmeans', 'Dice Watershed', 'Jaccard Kmeans', 'Jaacard Watersheds']
+        header_metric = ['Image', 'Dice Kmeans', 'Dice Watershed', 'Jaccard Kmeans', 'Jaccard Watersheds']
         csv_writer(name_metrics_csv, "w", header_metric)
 
         # Creating empty lists
