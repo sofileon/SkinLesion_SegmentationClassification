@@ -63,6 +63,24 @@ def get_fov(img):
 
     return thresh
 
+def pad_image(smaller_image, bigger_image):
+    """
+        :param smaller_image: image to be padded
+        :param bigger_image: image to be used as reference to pad the smaller image
+        ---------------
+        :return: padded image
+    """
+    # Get the shapes
+    bigger_image_height,bigger_image_width  = bigger_image.shape[:2]
+    smaller_image_height, smaller_image_width = smaller_image.shape[:2]
+    assert bigger_image_height >= smaller_image_height and bigger_image_width >= smaller_image_width, "The bigger image must be the second argument"
+    top_pad = (bigger_image_height - smaller_image_height) // 2
+    bottom_pad = bigger_image_height - smaller_image_height - top_pad
+    left_pad = (bigger_image_width - smaller_image_width) // 2
+    right_pad = bigger_image_width - smaller_image_width - left_pad
+    # Pad the smaller image to the size of the bigger image
+    padded_image = cv2.copyMakeBorder(smaller_image, top_pad, bottom_pad, left_pad, right_pad, cv2.BORDER_CONSTANT,value=0)
+    return padded_image
 
 def csv_writer(filename, action, row):
     """
