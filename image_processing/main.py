@@ -6,7 +6,7 @@ from os import listdir
 from os.path import isfile, join
 import cv2
 import numpy as np
-from utils import load_images, imshow_resize, store, csv_writer
+from utils import load_images, imshow_resize, store, pad_image, csv_writer
 from functions import hair_removal, segmentation_watershed, kmeans, dice_coeff, jaccard_index, geometric_moments, irregularity, texture, color
 from pathlib import Path
 thispath = Path(__file__).resolve()
@@ -17,11 +17,11 @@ if __name__ == '__main__':
     """
         flag_1_vs_all --> Flag to choose among 4:
         0: Perform hair removal, segmentation and feature extraction with just one image 
-        1: Perform hair removal and save the result for all the dataset in a chosen folder, additionally perform segmentation 
+        1: Perform hair removal and save the result for all the dataset in a chosen folder
         2: Perform segmentation with the no_hair images and save the metric results (Jaccard and dice index) in a .csv file
         3: Perform feature extraction of the ISIC 2017 DATASET for the machine learning
     """
-    flag_1_vs_all = 2
+    flag_1_vs_all = 0
 
     if flag_1_vs_all == 0:
         # 1 Image
@@ -126,9 +126,6 @@ if __name__ == '__main__':
     elif flag_1_vs_all == 1:
         # All Images
 
-        # Name .csv
-        name_metrics_csv = f"{str(thispath.parent.parent)}/data/metrics_all_images_all_segmentation.csv"
-
         # Load images
         path_mole = f'{str(thispath.parent.parent)}/data/subset-IPA-AIA/images/'
         path_mask = f'{str(thispath.parent.parent)}/data/subset-IPA-AIA/masks/'
@@ -142,73 +139,17 @@ if __name__ == '__main__':
         names = [name.removesuffix(".jpg") for name in names]
         names.sort()
 
-        # Initialize .csv writer with the header
-        header_metric = ['Image', 'Dice Kmeans', 'Dice Watershed', 'Jaccard Kmeans', 'Jaacard Watersheds']
-        csv_writer(name_metrics_csv, "w", header_metric)
-
-        # Creating empty lists
-        dice_kmeans = []
-        dice_water = []
-        jaccard_kmeans = []
-        jaccard_water = []
-        metrics = []
-
-        for i in range(len(images)):
+        for i, image in enumerate(images):
             print('Image: ' + names[i])
 
             # Hair removal
-            image_nohair = hair_removal(images[i])
+            image_nohair = hair_removal(image)
 
             # Remove frame for the segmentation
             image_nohair = image_nohair[1:image_nohair.shape[0] - 1, 1:image_nohair.shape[1] - 1, :]
 
-            # Watershed
-            mask_water = segmentation_watershed(image_nohair)
-
-            # K-means
-            mask_kmeans = kmeans(image_nohair)
-
-            # Computing scores
-            dice_m = dice_coeff(masks_frameless[i], mask_kmeans)
-            dice_kmeans.append(dice_m)
-            print("Dice kmeans: {}".format(dice_m))
-            dice_w = dice_coeff(masks_frameless[i], mask_water)
-            dice_water.append(dice_w)
-            print("Dice watershed: {}".format(dice_w))
-            jaccard_m = jaccard_index(masks_frameless[i], mask_kmeans)
-            jaccard_kmeans.append(jaccard_m)
-            print("Jaccard index kmeans: {}".format(jaccard_m))
-            jaccard_w = jaccard_index(masks_frameless[i], mask_water)
-            jaccard_water.append(jaccard_w)
-            print("Jaccard index watershed: {}".format(jaccard_w))
-            metrics.append(names[i])
-            metrics.append(dice_m)
-            metrics.append(dice_w)
-            metrics.append(jaccard_m)
-            metrics.append(jaccard_w)
-
-            # Append metric to the .csv file
-            csv_writer(name_metrics_csv, "a", metrics)
-
-            # Clear metrics
-            metrics = []
-
             # Store no hair images
             store(image_nohair, names[i], f'{str(thispath.parent.parent)}/data/subset-IPA-AIA/images_nohair/', '_nohair.jpg')
-
-        # Score final mean metrics
-        dice_kmeans_mean = np.mean(np.asarray(dice_kmeans))
-        dice_water_mean = np.mean(np.asarray(dice_water))
-        jaccard_kmeans_mean = np.mean(np.asarray(jaccard_kmeans))
-        jaccard_water_mean = np.mean(np.asarray(jaccard_water))
-        print('-'*30)
-        print("Dice_kmeans_mean: {}".format(dice_kmeans_mean))
-        print("Dice_water_mean: {}".format(dice_water_mean))
-        print("Jaccard index_kmeans_mean: {}".format(jaccard_kmeans_mean))
-        print("Jaccard index_water_mean: {}".format(jaccard_water_mean))
-        mean_metrics = ["MEAN", dice_kmeans_mean, dice_water_mean, jaccard_kmeans_mean, jaccard_water_mean]
-        # Append mean metrics to the .csv file
-        csv_writer(name_metrics_csv, "a", mean_metrics)
 
     # Apply kmeans and watershed functions on already saved images with no hair and save the result
     elif flag_1_vs_all == 2:
@@ -301,19 +242,19 @@ if __name__ == '__main__':
         # Append mean metrics to the .csv file
         csv_writer(name_metrics_csv, "a", mean_metrics)
 
+# Run for all the ISIC DATASET to perform feature extraction needed in Machine Learning
     elif flag_1_vs_all == 3:
-        # Run for all the ISIC DATASET to perform feature extraction needed in Machine Learning
-
-        # Path of the ISIC 2017 dataset and the masks obtained from the U-Net
-        path_DATASET = f"{str(thispath.parent.parent)}/data/subset-IPA-AIA/images"
-        path_mask_DL = f"{str(thispath.parent.parent)}/data/subset-IPA-AIA/predictions_UNet_training_validation/"
+        # Path of the ISIC 2017 dataset and the corresponding masks obtained from the U-Net
+        path_DATASET = f"{str(thispath.parent.parent)}/data/train"
+        path_mask_DL = f"{str(thispath.parent.parent)}/data/segmentation/train_UNET"
 
         # Get the names of the images
         names_DATASET = [f for f in listdir(path_DATASET) if isfile(join(path_DATASET, f))]
         names_DATASET = [name.removesuffix(".jpg") for name in names_DATASET]
         names_DATASET.sort()
+
         # .csv file's name
-        name_features_csv = f"{str(thispath.parent.parent)}/data/feature_extraction_.csv"
+        name_features_csv = f"{str(thispath.parent.parent)}/data/feature_extraction_train.csv"
 
         # Creating feature empty list
         features = []
@@ -354,18 +295,19 @@ if __name__ == '__main__':
         csv_writer(name_features_csv, "w", header)
         i = 0
 
-        files_mask_DL = glob.glob(path_mask_DL)
-        files_mask_DL.sort()
-        files_img = glob.glob(path_DATASET)
-        files_img.sort()
+        files_mask_DL = load_images(path_mask_DL, '*.png',0)
+        files_img = load_images(path_DATASET, '*.jpg', 1)
 
-        for file_img, file_mask in zip(files_img, files_mask_DL):
+        for image, image_masks_DL in zip(files_img, files_mask_DL):
             print('Image: ' + names_DATASET[i])
 
-            # Load the data
-            image = cv2.imread(file_img, 1)
-            image_masks_DL = cv2.imread(file_mask, 0)
+            # Convert the mask into a 0/1 binary mask
             image_masks_DL[image_masks_DL == 255] = 1
+            
+            #check if they are the same shape, if not zero pad the smaller one
+            if not image.shape==image_masks_DL.shape:
+                image_masks_DL=pad_image(image_masks_DL,image)
+
 
             # Merging the image with the mask
             b, g, r = cv2.split(image)
