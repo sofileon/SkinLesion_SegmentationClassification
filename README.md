@@ -13,7 +13,10 @@ Learning and Deep Learning.
 
 ## Requirements
 
-Create a new conda environment and install the requirements via `pip install -r requirements.txt`.
+Create and activate a new conda environment using the provided environment definition:
+
+`conda env create -f environment.yaml
+conda activate  `
 
 Download our pre-trained weights for the U-Net (segmentation) and the ConvNext (classification) via the following commands:
 
