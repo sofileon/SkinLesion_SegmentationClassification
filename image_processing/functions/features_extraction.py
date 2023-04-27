@@ -149,11 +149,11 @@ def texture(mask_img):
     ASM = ASM.flatten()
 
     # LBP Texture vector
-    desc = LocalBinaryPatterns(8, 1, 'uniform')
+    desc = LocalBinaryPatterns(8, 1, 'ror')
     hist, lbp = desc.describe(gray)
-    desc1 = LocalBinaryPatterns(8, 2, 'uniform')
+    desc1 = LocalBinaryPatterns(8, 2, 'ror')
     hist1, lbp1 = desc1.describe(gray)
-    desc2 = LocalBinaryPatterns(16, 2, 'uniform')
+    desc2 = LocalBinaryPatterns(16, 2, 'uni')
     hist2, lbp2 = desc2.describe(gray)
 
     # Concatenation of all the textures features in one unique list

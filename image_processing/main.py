@@ -279,12 +279,12 @@ if __name__ == '__main__':
             header.append(glcm_correlation + str(i))
         for i in range(1, 5):
             header.append(glcm_asm + str(i))
-        lbp_81 = "lbp_81_uni_"
-        lbp_82 = "lbp_82_uni_"
+        lbp_81 = "lbp_81_ror_"
+        lbp_82 = "lbp_82_ror_"
         lbp_162 = "lbp_162_uni_"
-        for i in range(1, 11):
+        for i in range(1, 37):
             header.append(lbp_81 + str(i))
-        for i in range(1, 11):
+        for i in range(1, 37):
             header.append(lbp_82 + str(i))
         for i in range(1, 19):
             header.append(lbp_162 + str(i))
