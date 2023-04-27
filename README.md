@@ -14,9 +14,10 @@ Learning and Deep Learning.
 ## Requirements
 
 Create and activate a new conda environment using the provided environment definition:
-
-`conda env create -f environment.yaml
-conda activate  `
+```
+conda env create -f environment.yaml
+conda activate  AIADeep
+```
 
 Download our pre-trained weights for the U-Net (segmentation) and the ConvNext (classification) via the following commands:
 
