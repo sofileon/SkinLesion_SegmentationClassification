@@ -254,7 +254,7 @@ if __name__ == '__main__':
         names_DATASET.sort()
 
         # .csv file's name
-        name_features_csv = f"{str(thispath.parent.parent)}/data/feature_extraction_train.csv"
+        name_features_csv = f"{str(thispath.parent.parent)}/data/feature_train.csv"
 
         # Creating feature empty list
         features = []
